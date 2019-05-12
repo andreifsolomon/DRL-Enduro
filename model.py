@@ -68,3 +68,15 @@ class DuelQNetwork(nn.Module):
 
         print("self.model: {}".format(self.feature_model))
 
+
+    def forward(self, state):
+        """Build a network that maps state -> action values."""
+
+        permitations = state.view(-1, state.size(3), state.size(1), state.size(2))
+        feature_model_state = self.input_layers(permitations)
+        dimension_squeeze = feature_model_state.view(len(feature_model_state), -1)
+        state = self.feature_model(dimension_squeeze)
+        advantege = self.advantage_approximator_model(state)
+        value = self.value_approximator_model(state)
+        
+        return value + advantege - advantege.mean()
